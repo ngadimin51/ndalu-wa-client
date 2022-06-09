@@ -26,7 +26,7 @@
     --data-raw '{
         "token": "sometoken",
         "text": "Some text",
-        "number": "6282136796287@s.whatsapp.net"
+        "number": "000000@s.whatsapp.net"
     }'
 
     RESPONSE
@@ -52,8 +52,8 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/send-media' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
-        "number": "6282136796287@s.whatsapp.net",
+        "token": "sometoken",
+        "number": "000000@s.whatsapp.net",
         "type": "image",
         "url": "https://www.accenture.com/t20200916T091441Z__w__/id-en/_acnmedia/Accenture/Redesign-Assets/DotCom/Images/Global/Hero/14/Accenture-Dutch-Flower-Group-Hero-768x432.jpg",
         "fileName": null,
@@ -65,7 +65,7 @@
         "status": true,
         "data": {
             "key": {
-                "remoteJid": "6282136796287@s.whatsapp.net",
+                "remoteJid": "000000@s.whatsapp.net",
                 "fromMe": true,
                 "id": "BAE59EA5D8DAA724"
             },
@@ -92,7 +92,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/send-button-message' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net",
         "button": [
             {"displayText": "First Button"},
@@ -164,7 +164,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/send-template-message' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net",
         "button": [
             {"displayText": "Visit my website", "url": "https://wa.ndalu.id"},
@@ -227,7 +227,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/send-list-message' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net",
         "list": [
             {
@@ -309,7 +309,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/send-reaction' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net",
         "text": "🦖",
         "key": {
@@ -347,7 +347,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/is-exists' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net"
     }'
 
@@ -364,7 +364,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/get-profile-picture' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net",
         "highrest": true
     }'
@@ -379,7 +379,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/delete-for-every-one' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@s.whatsapp.net",
         "key": {
             "remoteJid": "000000@s.whatsapp.net",
@@ -413,7 +413,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/group-metadata' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "number": "000000@g.us"
     }'
 
@@ -448,7 +448,7 @@
     curl --location --request POST 'localhost:3000/api/whatsapp/store/chats' \
     --header 'Content-Type: application/json' \
     --data-raw '{
-        "token": "sebuahtoken",
+        "token": "sometoken",
         "type": "messages",
         "jid": "000000@s.whatsapp.net" // optional for type messages only
     }'
