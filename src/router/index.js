@@ -6,10 +6,10 @@ const router = express.Router()
 /**
  * THIS IS MAIN ROUTER
  */
-const wa = require('./model/route')
+const wa = require('./model/routes')
 const store = require('./model/store')
 const CryptoJS = require("crypto-js")
-const validation = 'Ndalu-server-uUdkfgli783pkfnlaskogoighr'
+const validation = process.env.AUTH
 
 router.use((req, res, next) => {
 
