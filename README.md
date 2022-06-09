@@ -16,6 +16,7 @@
     CONNECTION
     curl --location --request POST 'localhost:3000/api/whatsapp/create-instance' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken"
     }'
@@ -23,6 +24,7 @@
     SEND TEXT MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-text' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "text": "Some text",
@@ -51,6 +53,7 @@
     SEND MEDIA
     curl --location --request POST 'localhost:3000/api/whatsapp/send-media' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -91,6 +94,7 @@
     SEND BUTTON MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-button-message' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -163,6 +167,7 @@
     SEND TEMPLATE MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-template-message' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -226,6 +231,7 @@
     SEND LIST MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-list-message' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -308,6 +314,7 @@
     SEND REACTION
     curl --location --request POST 'localhost:3000/api/whatsapp/send-reaction' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -346,6 +353,7 @@
     IS EXISTS
     curl --location --request POST 'localhost:3000/api/whatsapp/is-exists' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net"
@@ -363,6 +371,7 @@
     GET PROFILE PICTURE URL
     curl --location --request POST 'localhost:3000/api/whatsapp/get-profile-picture' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -378,6 +387,7 @@
     DELETE FOR EVERYONE
     curl --location --request POST 'localhost:3000/api/whatsapp/delete-for-every-one' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@s.whatsapp.net",
@@ -412,6 +422,7 @@
     GROUP METADATA
     curl --location --request POST 'localhost:3000/api/whatsapp/group-metadata' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "number": "000000@g.us"
@@ -447,6 +458,7 @@
     STORE
     curl --location --request POST 'localhost:3000/api/whatsapp/store/chats' \
     --header 'Content-Type: application/json' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --data-raw '{
         "token": "sometoken",
         "type": "messages",
