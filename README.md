@@ -1,4 +1,18 @@
 # DOCUMENTATION
+
+    TO INSTALL
+    yarn install
+
+    TO START DEVELOPER MODE
+    WINDOWS: yarn win-dev
+    LINUX: yarn dev
+
+    TO START production MODE
+    WINDOWS: yarn win-start
+    LINUX: yarn start
+
+#
+
     CONNECTION
     curl --location --request POST 'localhost:3000/api/whatsapp/create-instance' \
     --header 'Content-Type: application/json' \
