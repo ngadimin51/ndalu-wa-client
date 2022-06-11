@@ -1,5 +1,9 @@
 # DOCUMENTATION
 
+    BEFORE INSTALLATION
+    Create folder named credentials
+    Create folder name store inside the credentials
+
     TO INSTALL
     yarn install
 
@@ -11,8 +15,34 @@
     WINDOWS: yarn win-start
     LINUX: yarn start
 
-#
+# EXAMPLE
+    ![sample](https://github.com/ngadimin51/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true)
 
+    I just add example page using static html. Remove this if you done with your update
+
+# WEBHOOK
+    READ file src/router/model/whatsapp.js
+    LINE 122
+
+    /** START WEBHOOK */
+    const url = 'https://your-webhook.com'
+    axios.post(url, {
+        key: key,
+        message: message
+    })
+    .then(function (response) {
+        console.log(response);
+        io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+    })
+    .catch(function (error) {
+        console.log(error);
+        io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+    });
+    /** END WEBHOOK */
+
+    REPLACE the [url] value with your webhook url, this action will send all actifity to your webhook
+    It send 3 value, token, key, and message. Do something action with your webhook.
+#
     CONNECTION
     curl --location --request POST 'localhost:3000/api/whatsapp/create-instance' \
     --header 'Content-Type: application/json' \

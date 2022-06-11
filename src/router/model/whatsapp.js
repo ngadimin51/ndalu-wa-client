@@ -11,12 +11,14 @@ const fs = require('fs')
 let sock = []
 let qrcode = []
 
+const axios = require('axios')
+
 /***********************************************************
  * FUNCTION
  **********************************************************/
 
 // connection
-async function connectToWhatsApp(token) {
+async function connectToWhatsApp(token, io) {
 
     // fetch latest version of WA Web
 	const { version, isLatest } = await fetchLatestBaileysVersion()
@@ -64,6 +66,7 @@ async function connectToWhatsApp(token) {
                     logger.error(err)
                 }
                 qrcode[token]=url
+                io.emit('qrcode', {token, data: url})
             })
         }
 
@@ -87,7 +90,7 @@ async function connectToWhatsApp(token) {
                     }
                 } else {
                     logger.info('Connecting')
-                    connectToWhatsApp(token)
+                    connectToWhatsApp(token, io)
                 }
                 
             }
@@ -95,6 +98,13 @@ async function connectToWhatsApp(token) {
             logger.info('opened connection')
             logger.info(sock[token].user)
             await sock[token].sendPresenceUpdate('unavailable')
+
+            let number = sock[token].user.id.split(':')
+            number = number[0]+'@s.whatsapp.net'
+
+            const ppUrl = await getPpUrl(token, number)
+
+            io.emit('connection-open', {token, user: sock[token].user, ppUrl})
         }
     })
 
@@ -106,6 +116,24 @@ async function connectToWhatsApp(token) {
         const key = m.messages[0].key
         const message = m.messages[0].message
         console.log( {key, message} )
+
+        io.emit('message-upsert', {token, key, message})
+
+        /** START WEBHOOK */
+        const url = 'https://your-webhook.com'
+        axios.post(url, {
+            key: key,
+            message: message
+        })
+        .then(function (response) {
+            console.log(response);
+            io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+        })
+        .catch(function (error) {
+            console.log(error);
+            io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+        });
+        /** END WEBHOOK */
 
     })
     

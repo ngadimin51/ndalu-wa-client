@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        html, body {
+            margin: 0 0 0 0;
+        }
+        body {
+            padding: 10px 10px 10px 10px;
+        }
+        #pre {
+            background-color: black;
+            color: white;
+            padding: 10px 10px 10px 10px;
+        }
+        #qrcode-container {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+
+    <!-- SOCKET.IO -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io()
+    </script>
+
+</head>
+<body>
+    
+<!-- THIS INPUT IS FOR POST TOKEN -->
+<form id="token-form">
+    This input is for post the Token
+    <br />
+    <input type="text" name="token">
+    <input type="submit" name="submit">
+    <br />
+    <label for="">TOKEN</label>
+    <br />
+    <!-- YOU MUST PROVIDE THE TOKEN ON YOUR CLIENT SIDE, TO CHECK THE OWNER OF THE QRCODE -->
+    <input id="token" type="text" placeholder="verified by token" disabled>
+</form>
+
+<!-- SAMPLE IMAGE TO GENERATE QRCODE -->
+<div id="qrcode-container">
+    <img id="qrcode" src="https://ndalu.id/favicon.png" alt="">
+</div>
+
+<!-- THIS JUST PRE FOR SHOWING THE JSON FROM SERVER -->
+<pre id="pre">{
+    message: "Here all the json will show"
+}</pre>
+
+<script>
+
+    const pre = document.querySelector('#pre')
+    const checkToken = document.querySelector('#token')
+    const qrcode = document.querySelector('#qrcode')
+
+    const form = document.querySelector('#token-form')
+    if ( form ) form.addEventListener('submit', async (e) => {
+        e.preventDefault()
+        const token = document.querySelector('input[name="token"]')
+        if (token.value) {
+            checkToken.value = token.value
+            const req = await fetch('/api/whatsapp/create-instance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({token: token.value})
+            })
+            const res = await req.json()
+            // return socket.emit("message", token.value);
+            return pre.innerHTML = JSON.stringify(res, undefined, 2)
+        }
+        pre.innerHTML = JSON.stringify({message: 'Token must not be empty'}, undefined, 2)
+    })
+
+    socket.on('message', (data) => {
+        pre.innerHTML = JSON.stringify(data, undefined, 2)
+    })
+
+    socket.on('message-upsert', (data) => {
+        if (data.token === checkToken.value) {
+            pre.innerHTML = JSON.stringify(data, undefined, 2)
+        }
+    })
+
+    socket.on('qrcode', (data) => {
+        // Check if token is same with te data.token, show the qrcode
+        if (data.token === checkToken.value) {
+            qrcode.src = data.data
+        }
+    })
+
+    socket.on('connection-open', (data) => {
+        // Check if token is same with te data.token, show the qrcode
+        if (data.token === checkToken.value) {
+            pre.innerHTML = JSON.stringify(data, undefined, 2)
+            qrcode.src = data.ppUrl
+        }
+    })
+
+</script>
+
+</body>
+</html>

@@ -10,12 +10,28 @@ const createInstance = async (req, res) => {
     if ( token ) {
 
         if ( sock[token] ) {
+            console.log(sock[token].user)
+            
+            let number = sock[token].user.id.split(':')
+            number = number[0]+'@s.whatsapp.net'
+
+            const ppUrl = await wa.getPpUrl(token, number)
+            
+            setTimeout(() => {
+                req.io.emit('connection-open', {token, user: sock[token].user, ppUrl})
+            }, 2000)
+
             return res.send(sock[token])
         }
 
-        const connect = await wa.connectToWhatsApp(token)
-        sock[token] = connect
-        return res.send(connect)
+        try {
+            const connect = await wa.connectToWhatsApp(token, req.io)
+            sock[token] = connect
+            return res.send(connect)
+        } catch (error) {
+            console.log(error)
+            return res.send({status: false, error: error})
+        }
     }
     res.status(403).end('Token needed')
 
