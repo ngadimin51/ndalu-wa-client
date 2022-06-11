@@ -16,7 +16,7 @@
     LINUX: yarn start
 
 # EXAMPLE
-    [examle page](https://github.com/ngadimin51/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true)
+    ![examle page](https://github.com/ngadimin51/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true)
 
     I just add example page using static html. Remove this if you done with your update
 
