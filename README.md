@@ -17,6 +17,7 @@
 
 # EXAMPLE
     ![sample](https://github.com/ngadimin51/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true)
+    ![nGadimin](https://ndalu.id/favicon.png)
 
     I just add example page using static html. Remove this if you done with your update
 
