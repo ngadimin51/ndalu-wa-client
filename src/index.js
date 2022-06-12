@@ -54,3 +54,31 @@ app.get('/*', (req, res) => {
 })
 
 server.listen(port, log.info(`Server run and listening port: ${port}`))
+
+function autostartInstance() {
+
+    const wa = require('./router/model/whatsapp')
+
+    // looking for credentials saved
+    const fs = require('fs')
+    const path = 'credentials'
+    const file = fs.readdirSync(path)
+    let token = file.filter( x => x != 'store')
+    token = token.map( x => x.split('.')[0])
+
+    // looping credentials to reconnecting
+    lib.log.info(`Found ${token.length} credential${token.length > 1 ? '\'s' : ''}`)
+    for ( let i = 0; i < token.length; i++ ) {
+        const delay = i * 2000 // set delay 2 second each credentials. You can edit here for the delay
+        setTimeout(async() => {
+            lib.log.info(`Reconnecting session ${token[i]}`)
+            await wa.connectToWhatsApp(token[i], io).catch(err => lib.log.error(err))
+        }, delay)
+    }
+
+}
+
+// delaying app 5 second before autostart, to more eficient ram.
+setTimeout(() => {
+    autostartInstance()
+}, 5000)

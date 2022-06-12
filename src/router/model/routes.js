@@ -1,6 +1,7 @@
 'use strict'
 
 const wa = require('./whatsapp')
+const lib = require('../../lib')
 
 let sock = []
 

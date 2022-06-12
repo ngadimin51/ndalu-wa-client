@@ -1,5 +1,4 @@
 # DOCUMENTATION
-
     BEFORE INSTALLATION
     Create folder named credentials
     Create folder name store inside the credentials
@@ -42,6 +41,22 @@
 
     REPLACE the [url] value with your webhook url, this action will send all actifity to your webhook
     It send 3 value, token, key, and message. Do something action with your webhook.
+
+# AUTOSTART INSTANCE
+    WHEN YOU SEEN ERROR MESSAGE LIKE THIS
+
+    ERROR [2022-06-12 09:02:00.173 +0700]: Cannot read property 'emit' of undefined
+    err: {
+      "type": "TypeError",
+      "message": "Cannot read property 'emit' of undefined",
+      "stack":
+          TypeError: Cannot read property 'emit' of undefined
+              at EventEmitter.<anonymous> (D:\9. nDalu.id\BLOG\wa.ndalu.express\NDALU-WA-CLIENT\src\router\model\whatsapp.js:112:20)
+              at processTicksAndRejections (internal/process/task_queues.js:95:5)
+    }
+
+    It cause auto start not emitting data to client. It's ok
+
 #
     CONNECTION
     curl --location --request POST 'localhost:3000/api/whatsapp/create-instance' \
@@ -50,6 +65,7 @@
     --data-raw '{
         "token": "sometoken"
     }'
+
 #
     SEND TEXT MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-text' \
@@ -79,6 +95,7 @@
             "status": "PENDING"
         }
     }
+
 #
     SEND MEDIA
     curl --location --request POST 'localhost:3000/api/whatsapp/send-media' \
@@ -120,6 +137,7 @@
             "status": "PENDING"
         }
     }
+
 #
     SEND BUTTON MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-button-message' \
@@ -193,6 +211,7 @@
             "status": "PENDING"
         }
     }
+
 #
     SEND TEMPLATE MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-template-message' \
@@ -257,6 +276,7 @@
     }
 
     // Unfortunally, image is not displayed for now, let me monitoring from github bailyes issues
+
 #
     SEND LIST MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-list-message' \
@@ -340,6 +360,7 @@
             "status": "PENDING"
         }
     }
+
 #
     SEND REACTION
     curl --location --request POST 'localhost:3000/api/whatsapp/send-reaction' \
@@ -379,6 +400,7 @@
             "status": "PENDING"
         }
     }
+
 #
     IS EXISTS
     curl --location --request POST 'localhost:3000/api/whatsapp/is-exists' \
@@ -397,6 +419,7 @@
             "jid": "000000@s.whatsapp.net"
         }
     }
+
 #
     GET PROFILE PICTURE URL
     curl --location --request POST 'localhost:3000/api/whatsapp/get-profile-picture' \
@@ -413,6 +436,7 @@
         "status": true,
         "data": "https://pps.whatsapp.net/v/t61.24694-24/175575661_389612149492065_1766253441851505238_n.jpg?ccb=11-4&oh=be11861a0046460383de6c9da800a184&oe=62B101AD"
     }
+
 #
     DELETE FOR EVERYONE
     curl --location --request POST 'localhost:3000/api/whatsapp/delete-for-every-one' \
@@ -448,6 +472,7 @@
     }
 
     // Unfortunally, sometime message not deleted, let me monitoring from github bailyes issues
+
 #
     GROUP METADATA
     curl --location --request POST 'localhost:3000/api/whatsapp/group-metadata' \
@@ -484,6 +509,7 @@
             ]
         }
     }
+    
 #
     STORE
     curl --location --request POST 'localhost:3000/api/whatsapp/store/chats' \

@@ -37,6 +37,7 @@ router.use((req, res, next) => {
     if (!status) {
         return res.status(403).end('403 - Authorization not allowed')
     }
+
     next()
 })
 

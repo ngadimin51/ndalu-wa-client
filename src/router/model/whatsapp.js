@@ -66,7 +66,11 @@ async function connectToWhatsApp(token, io) {
                     logger.error(err)
                 }
                 qrcode[token]=url
-                io.emit('qrcode', {token, data: url})
+                try {
+                    io.emit('qrcode', {token, data: url})
+                } catch (error) {
+                    lib.log.error(error)
+                }
             })
         }
 
@@ -104,7 +108,11 @@ async function connectToWhatsApp(token, io) {
 
             const ppUrl = await getPpUrl(token, number)
 
-            io.emit('connection-open', {token, user: sock[token].user, ppUrl})
+            try {
+                io.emit('connection-open', {token, user: sock[token].user, ppUrl})
+            } catch (error) {
+                lib.log.error(error)
+            }
         }
     })
 
@@ -117,7 +125,11 @@ async function connectToWhatsApp(token, io) {
         const message = m.messages[0].message
         console.log( {key, message} )
 
-        io.emit('message-upsert', {token, key, message})
+        try {
+            io.emit('message-upsert', {token, key, message})
+        } catch (error) {
+            lib.log.error(error)
+        }
 
         /** START WEBHOOK */
         const url = 'https://your-webhook.com'
@@ -127,11 +139,19 @@ async function connectToWhatsApp(token, io) {
         })
         .then(function (response) {
             console.log(response);
-            io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+            try {
+                io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+            } catch (error) {
+                lib.log.error(error)
+            }
         })
         .catch(function (error) {
             console.log(error);
-            io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+            try {
+                io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+            } catch (error) {
+                lib.log.error(error)
+            }
         });
         /** END WEBHOOK */
 
