@@ -41,7 +41,7 @@ async function connectToWhatsApp(token, io) {
 
     sock[token] = makeWASocket({
         version,
-        printQRInTerminal: process.env.NODE_ENV !== 'production' ? true : false,
+        printQRInTerminal: process.env.NODE_ENV.trim() !== 'production' ? true : false,
         logger: logger,
         auth: state,
         getMessage: function (key) { return Promise(); },
