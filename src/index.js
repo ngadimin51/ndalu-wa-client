@@ -54,10 +54,3 @@ app.get('/*', (req, res) => {
 })
 
 server.listen(port, log.info(`Server run and listening port: ${port}`))
-
-io.on("connection", (socket) => {
-    // socket.on("message", (arg) => {
-    //     // socket.emit("message", { message: "Receiving your message: "+arg })
-    //     socket.emit("qrcode", { token: arg, data: 'https://caket.org/favicon.png'})
-    // });
-});

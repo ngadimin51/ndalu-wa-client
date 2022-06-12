@@ -71,7 +71,8 @@
             const req = await fetch('/api/whatsapp/create-instance', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg=='
                 },
                 body: JSON.stringify({token: token.value})
             })
