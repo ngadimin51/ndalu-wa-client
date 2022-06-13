@@ -26,7 +26,11 @@ const server = http.createServer(app)
 /**
  * SOCKET.IO
  */
-const io = require('socket.io')(server);
+const io = require('socket.io')(server,{
+    cors: {
+      origin: process.env.ORIGIN
+    }
+});
 // middleware
 app.use( (req, res, next) => {
     res.set('Cache-Control', 'no-store')

@@ -14,10 +14,20 @@
     WINDOWS: yarn win-start
     LINUX: yarn start
 
+# ENV
+
+    ALWAYS CHECK YOUR .env FILE
+    PORT = 3000 // port for your nodejs api
+    AUTH = Ndalu-server-uUdkfgli783pkfnlaskogoighr // key to protect your api server from attacker
+    ORIGIN = http://localhost // your client domain
+
 # EXAMPLE
     ![examle page](https://github.com/ngadimin51/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true)
 
     I just add example page using static html. Remove this if you done with your update
+
+    Updated PHP native sample with cross server and different port.
+    Check the PHP folder, using jquery for index.php to ajax call and using curl on post.php
 
 # WEBHOOK
     READ file src/router/model/whatsapp.js
