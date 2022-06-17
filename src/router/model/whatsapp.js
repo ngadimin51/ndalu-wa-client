@@ -20,6 +20,10 @@ const axios = require('axios')
 // connection
 async function connectToWhatsApp(token, io) {
 
+    if ( typeof sock[token] !== 'undefined' ) {
+        return sock[token]
+    }
+
     // fetch latest version of WA Web
 	const { version, isLatest } = await fetchLatestBaileysVersion()
 	console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
@@ -44,7 +48,7 @@ async function connectToWhatsApp(token, io) {
         printQRInTerminal: process.env.NODE_ENV.trim() !== 'production' ? true : false,
         logger: logger,
         auth: state,
-        getMessage: function (key) { return Promise(); },
+        // getMessage: function (key) { return Promise(); },
         browser: ["nDalu.id", "chrome", "1.0.0"]
     })
 
@@ -209,26 +213,74 @@ async function sendMedia(token, number, type, url, fileName, caption) {
      */
 
     try {
-        const sendMsg = await sock[token].sendMessage(
-            number, 
-            type == 'image' ?
-            { 
-                image: url ? {url} : fs.readFileSync('src/public/temp/'+fileName),
-                caption: caption ? caption : null,
-            } : null,
-            type == 'video' ?
-            { 
-                video: url ? {url} : fs.readFileSync('src/public/temp/'+fileName),
-                caption: caption ? caption : null,
-                gifPlayback: true
-            } : null,
-            type == 'audio' ?
-            { 
-                audio: url ? {url} : fs.readFileSync('src/public/temp/'+fileName),
-                caption: caption ? caption : null,
-                gifPlayback: true
-            } : null,
-        )
+        if ( type == 'image' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { image: url ? {url} : fs.readFileSync('src/public/temp/'+fileName), caption: caption ? caption : null},
+            )
+        } else if ( type == 'video' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { video: url ? {url} : fs.readFileSync('src/public/temp/'+fileName), caption: caption ? caption : null},
+            )
+        } else if ( type == 'audio' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { audio: url ? {url} : fs.readFileSync('src/public/temp/'+fileName), caption: caption ? caption : null},
+            )
+        } else if ( type == 'pdf' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/pdf'},
+                { url: url }
+            )
+        } else if ( type == 'xls' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/excel'},
+                { url: url }
+            )
+        } else if ( type == 'xls' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/excel'},
+                { url: url }
+            )
+        } else if ( type == 'xlsx' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'},
+                { url: url }
+            )
+        } else if ( type == 'doc' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/msword'},
+                { url: url }
+            )
+        } else if ( type == 'docx' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'},
+                { url: url }
+            )
+        } else if ( type == 'zip' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/zip'},
+                { url: url }
+            )
+        } else if ( type == 'mp3' ) {
+            var sendMsg = await sock[token].sendMessage(
+                number,
+                { document: { url: url }, mimetype: 'application/mp3'},
+                { url: url }
+            )
+        } else {
+            console.log('Please add your won role of mimetype')
+            return false
+        }
+        // console.log(sendMsg)
         return sendMsg
     } catch (error) {
         console.log(error)
@@ -286,7 +338,7 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
         ]
 
         const buttonMessage = {
-            text: text,
+            caption: text,
             footer: footer,
             templateButtons: templateButtons,
             image: {url: image}

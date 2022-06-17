@@ -70,7 +70,7 @@ const sendButtonMessage = async (req, res) => {
     
     const { token, number, button, message, footer, type, image } = req.body
     
-    if ( token && number && button && message && footer && type && image ) {
+    if ( token && number && button && message && footer ) {
         const sendButtonMessage = await wa.sendButtonMessage(token, number, button, message, footer, type, image)
         if (sendButtonMessage) return res.send({status: true, data: sendButtonMessage})
         return res.send({status: false, message: 'Check your connection'})

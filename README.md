@@ -148,6 +148,24 @@
         }
     }
 
+    TYPE LIST
+    MEDIA DEFAULT
+    type == 'image'
+    type == 'video'
+    type == 'audio'
+
+    DOCUMENT
+    type == 'pdf'
+    type == 'xls'
+    type == 'xlsx'
+    type == 'doc'
+    type == 'docx'
+    type == 'zip'
+    type == 'mp3'
+
+    src/router/model/whatsapp.js start from line 216
+    Update with your own mimetype if you need
+
 #
     SEND BUTTON MESSAGE
     curl --location --request POST 'localhost:3000/api/whatsapp/send-button-message' \
@@ -223,7 +241,7 @@
     }
 
 #
-    SEND TEMPLATE MESSAGE
+    SEND TEMPLATE MESSAGE (If you message is sent back to your device, check your desktop whatsapp. Fix on desktop. Bug from baileys)
     curl --location --request POST 'localhost:3000/api/whatsapp/send-template-message' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -288,7 +306,7 @@
     // Unfortunally, image is not displayed for now, let me monitoring from github bailyes issues
 
 #
-    SEND LIST MESSAGE
+    SEND LIST MESSAGE (NO IMAGE SUPPORTED, read baileys. https://github.com/adiwajshing/Baileys)
     curl --location --request POST 'localhost:3000/api/whatsapp/send-list-message' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
