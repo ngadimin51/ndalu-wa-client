@@ -18,7 +18,7 @@
 
     ALWAYS CHECK YOUR .env FILE
     PORT = 3000 // port for your nodejs api
-    AUTH = Ndalu-server-uUdkfgli783pkfnlaskogoighr // key to protect your api server from attacker
+    AUTH = Ndalu-server-uUdkfgli783pkfnlaskogoighr // key to protect your api server from attacker, you can change but must change the headers auth. Try using postman to generate the auth
     ORIGIN = http://localhost // your client domain
 
 # EXAMPLE
@@ -98,7 +98,7 @@
             },
             "message": {
                 "extendedTextMessage": {
-                    "text": "Ini adalah text"
+                    "text": "This is text"
                 }
             },
             "messageTimestamp": "1654779828",
