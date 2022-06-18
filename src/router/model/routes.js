@@ -3,32 +3,19 @@
 const wa = require('./whatsapp')
 const lib = require('../../lib')
 
-let sock = []
-
 const createInstance = async (req, res) => {
 
     const { token } = req.body
     if ( token ) {
-
-        if ( sock[token] ) {
-            console.log(sock[token].user)
-            
-            let number = sock[token].user.id.split(':')
-            number = number[0]+'@s.whatsapp.net'
-
-            const ppUrl = await wa.getPpUrl(token, number)
-            
-            setTimeout(() => {
-                req.io.emit('connection-open', {token, user: sock[token].user, ppUrl})
-            }, 2000)
-
-            return res.send(sock[token])
-        }
-
         try {
             const connect = await wa.connectToWhatsApp(token, req.io)
-            sock[token] = connect
-            return res.send(connect)
+            const status = connect?.status
+            const message = connect?.message
+            return res.send({
+                status: status,
+                qrcode: connect?.qrcode,
+                message: message
+            })
         } catch (error) {
             console.log(error)
             return res.send({status: false, error: error})

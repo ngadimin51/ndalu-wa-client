@@ -7,7 +7,7 @@ const chats = (req, res) => {
     const { token, type, jid } = req.body
     if ( token && type ) {
         try {
-            const file = fs.readFileSync(`credentials/store/${token}.json`, {encoding:'utf8'})
+            const file = fs.readFileSync(`credentials/${token}/multistore.js`, {encoding:'utf8'})
             // parsing data to json
             let json = JSON.parse(file)
             if ( type === "chats" ) {

@@ -1,7 +1,15 @@
+# UPDATE
+
+    Baileys nolonger using useSingeFileAuthState, now using useMultiFileAuthState.
+    Script updated using last baileys documentation.
+
+    credential and store will saved in the credentials file.
+    Still not trying much, maybe have a bug. Not already checked for more details during my activity.
+
 # DOCUMENTATION
     BEFORE INSTALLATION
     Create folder named credentials
-    Create folder name store inside the credentials
+    Create folder name store inside the credentials // nomore using this
 
     TO INSTALL
     yarn install
