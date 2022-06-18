@@ -149,7 +149,7 @@ const deleteEveryOne = async (req, res) => {
     const { token, number, key } = req.body
 
     if ( token && number && key ) {
-        const deleteEveryOne = await wa.sendReaction(token, number, key)
+        const deleteEveryOne = await wa.deleteEveryOne(token, number, key)
         if ( deleteEveryOne ) return res.send({status: true, data: deleteEveryOne})
         return res.send({status: false, message: 'Check your connection'})
     }

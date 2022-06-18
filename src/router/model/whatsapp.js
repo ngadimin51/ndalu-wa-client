@@ -1,7 +1,7 @@
 'use strict'
 
-const { default: makeWASocket, downloadContentFromMessage } = require('@adiwajshing/baileys')
-const { makeWALegacySocket, useSingleFileAuthState, makeInMemoryStore, fetchLatestBaileysVersion } = require('@adiwajshing/baileys')
+const { default: makeWASocket, makeWALegacySocket, downloadContentFromMessage } = require('@adiwajshing/baileys')
+const { useSingleFileAuthState, makeInMemoryStore, fetchLatestBaileysVersion, areJidsSameUser, isJidBroadcast, isJidGroup, isJidStatusBroadcast, isJidUser, jidDecode, jidEncode } = require('@adiwajshing/baileys')
 const { DisconnectReason } = require('@adiwajshing/baileys')
 const QRCode = require('qrcode')
 
@@ -35,7 +35,7 @@ async function connectToWhatsApp(token, io) {
     // can be read from a file
     store.readFromFile(`credentials/store/${token}.json`)
 
-    // saves the state to a file every 10s
+    // saves the state to a file every 60s
     const intervalStore = setInterval(() => {
         store.writeToFile(`credentials/store/${token}.json`)
         logger.info({token, message: 'Storing data'})
@@ -48,7 +48,7 @@ async function connectToWhatsApp(token, io) {
         printQRInTerminal: process.env.NODE_ENV.trim() !== 'production' ? true : false,
         logger: logger,
         auth: state,
-        // getMessage: function (key) { return Promise(); },
+        getMessage: function (key) { return Promise(key); },
         browser: ["nDalu.id", "chrome", "1.0.0"]
     })
 
@@ -124,7 +124,9 @@ async function connectToWhatsApp(token, io) {
     sock[token].ev.on('messages.upsert', async m => {
 
         await sock[token].sendPresenceUpdate('unavailable')
-        console.log('got contacts', Object.values(store.chats))
+        // console.log('got contacts', Object.values(store.chats))
+        store.writeToFile(`credentials/store/${token}.json`)
+
         const key = m.messages[0].key
         const message = m.messages[0].message
         console.log( {key, message} )
@@ -136,27 +138,29 @@ async function connectToWhatsApp(token, io) {
         }
 
         /** START WEBHOOK */
-        const url = 'https://your-webhook.com'
-        axios.post(url, {
-            key: key,
-            message: message
-        })
-        .then(function (response) {
-            console.log(response);
-            try {
-                io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
-            } catch (error) {
-                lib.log.error(error)
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-            try {
-                io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
-            } catch (error) {
-                lib.log.error(error)
-            }
-        });
+        const url = process.env.WEBHOOK
+        if ( url ) {
+            axios.post(url, {
+                key: key,
+                message: message
+            })
+            .then(function (response) {
+                console.log(response);
+                try {
+                    io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+                } catch (error) {
+                    lib.log.error(error)
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                try {
+                    io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+                } catch (error) {
+                    lib.log.error(error)
+                }
+            });
+        }
         /** END WEBHOOK */
 
     })
@@ -168,7 +172,8 @@ async function connectToWhatsApp(token, io) {
     sock[token].ev.on('contacts.upsert', async contacts => {
 
         await sock[token].sendPresenceUpdate('unavailable')
-        console.log('got contacts', Object.values(store.contacts))
+        // console.log('got contacts', Object.values(store.contacts))
+        store.writeToFile(`credentials/store/${token}.json`)
 
     })
 
@@ -177,14 +182,16 @@ async function connectToWhatsApp(token, io) {
 
         // can use "store.chats" however you want, even after the socket dies out
         // "chats" => a KeyedDB instance
-        console.log('got chats', store.chats.all())
+        // console.log('got chats', store.chats.all())
+        store.writeToFile(`credentials/store/${token}.json`)
 
     })
 
     // contacts set
     sock[token].ev.on('contacts.set', () => {
 
-        console.log('got contacts', Object.values(store.contacts))
+        // console.log('got contacts', Object.values(store.contacts))
+        store.writeToFile(`credentials/store/${token}.json`)
 
     })
 
@@ -419,6 +426,7 @@ async function getPpUrl(token, number, highrest) {
             // for low res picture
             ppUrl = await sock[token].profilePictureUrl(number)
         }
+
         return ppUrl
     } catch (error) {
         console.log(error)
