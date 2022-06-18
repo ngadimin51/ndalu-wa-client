@@ -16,18 +16,33 @@ const axios = require('axios')
 /***********************************************************
  * FUNCTION
  **********************************************************/
-const MAIN_LOGGER = require('../../lib/pino')
-const logger = MAIN_LOGGER.child({ })
- 
-const useStore = !process.argv.includes('--no-store')
-const doReplies = !process.argv.includes('--no-reply')
- 
-// external map to store retry counts of messages when decryption/encryption fails
-// keep this out of the socket itself, so as to prevent a message decryption/encryption loop across socket restarts
-const msgRetryCounterMap = () => MessageRetryMap = { }
 
-// start a connection
+//  import { Boom } from '@hapi/boom'
+//  import makeWASocket, { AnyMessageContent, delay, DisconnectReason, fetchLatestBaileysVersion, makeInMemoryStore, MessageRetryMap, useMultiFileAuthState } from '../src'
+ const MAIN_LOGGER = require('../../lib/pino')
+ 
+ const logger = MAIN_LOGGER.child({ })
+//  logger.level = 'trace'
+ 
+ const useStore = !process.argv.includes('--no-store')
+ const doReplies = !process.argv.includes('--no-reply')
+ 
+ // external map to store retry counts of messages when decryption/encryption fails
+ // keep this out of the socket itself, so as to prevent a message decryption/encryption loop across socket restarts
+ const msgRetryCounterMap = () => MessageRetryMap = { }
+ 
+ // start a connection
+ 
 const connectToWhatsApp = async (token, io) => {
+
+    try {
+        let number = sock[token].user.id.split(':')
+        number = number[0]+'@s.whatsapp.net'        
+        const ppUrl = await getPpUrl(token, number)
+        return { status: false, message: 'Already connected'}
+    } catch (error) {
+        console.log(error)
+    }
 
     const { state, saveCreds } = await useMultiFileAuthState(`credentials/${token}`)
     // fetch latest version of WA Web
@@ -39,59 +54,22 @@ const connectToWhatsApp = async (token, io) => {
     const store = useStore ? makeInMemoryStore({ logger }) : undefined
     store?.readFromFile(`credentials/${token}/multistore.js`)
     // save every 10s
-    const intervalStore = setInterval(() => {
+    const interalStore = setInterval(() => {
         store?.writeToFile(`credentials/${token}/multistore.js`)
-    }, 60_000)
-
-    if ( typeof sock[token] !== 'undefined' ) {
-
-        let number = sock[token].user.id.split(':')
-        number = number[0]+'@s.whatsapp.net'
-
-        try {
-            const ppUrl = await getPpUrl(token, number)
-            io.emit('connection-open', {token, user: sock[token].user, ppUrl})
-            return {
-                status: true,
-                message: `Allready connected, if still failed delete folder credentials/${token}`,
-                user: sock[token].user
-            }
-        } catch (error) {
-            console.log(error)
-            fs.rmSync(`credentials/${token}`, { recursive: true, force: true });
-            clearInterval(intervalStore)
-            delete sock[token]
-            console.log('Connection closed. You are logged out.')
-            return {
-                status: false,
-                message: 'Connection closed. You are logged out.'
-            }
-        }
-
-    }
-
-    if ( qrcode[token] ) {
-        return {
-            status: false,
-            qrcode: qrcode[token],
-            message: 'Waiting to scann qrcode'
-        }
-    }
+    }, 10_000)
 
     sock[token] = makeWASocket({
         version,
         logger,
-        printQRInTerminal: process.env.NODE_ENV.trim() !== 'production' ? true : false,
+        printQRInTerminal: true,
         auth: state,
         msgRetryCounterMap,
         // implement to handle retries
         getMessage: async key => {
-            return key
-            // return {
-            //     conversation: 'hello'
-            // }
-        },
-        browser: ["nDalu.id", "chrome", "1.0.0"]
+            return {
+                conversation: 'hello'
+            }
+        }
     })
 
     store?.bind(sock[token].ev)
@@ -108,117 +86,97 @@ const connectToWhatsApp = async (token, io) => {
     //     await sock.sendMessage(jid, msg)
     // }
 
-    sock[token].ev.on('call', item => {
-        console.log('recv call event', item)
-    })
-    sock[token].ev.on('chats.set', item => {
-        console.log(`recv ${item.chats.length} chats (is latest: ${item.isLatest})`)
-    })
-    sock[token].ev.on('messages.set', item => {
-        console.log(`recv ${item.messages.length} messages (is latest: ${item.isLatest})`)
-    })
-    sock[token].ev.on('contacts.set', item => {
-        console.log(`recv ${item.contacts.length} contacts`)
-    })
+    // sock[token].ev.on('call', item => console.log('recv call event', item))
+    // sock[token].ev.on('chats.set', item => console.log(`recv ${item.chats.length} chats (is latest: ${item.isLatest})`))
+    // sock[token].ev.on('messages.set', item => console.log(`recv ${item.messages.length} messages (is latest: ${item.isLatest})`))
+    // sock[token].ev.on('contacts.set', item => console.log(`recv ${item.contacts.length} contacts`))
 
     sock[token].ev.on('messages.upsert', async m => {
         // console.log(JSON.stringify(m, undefined, 2))
+
+        // const msg = m.messages[0]
+        // if(!msg.key.fromMe && m.type === 'notify' && doReplies) {
+        //     console.log('replying to', m.messages[0].key.remoteJid)
+        //     // await sock.sendReadReceipt(msg.key.remoteJid, msg.key.participant, [msg.key.id])
+        //     // await sendMessageWTyping({ text: 'Hello there!' }, msg.key.remoteJid)
+        // }
         
+        // console.log('got contacts', Object.values(store.chats))
         store?.writeToFile(`credentials/${token}/multistore.js`)
 
-        const msg = m.messages[0]
-        if(!msg.key.fromMe && m.type === 'notify' && doReplies) {
-            // console.log('replying to', m.messages[0].key.remoteJid)
-            // await sock.sendReadReceipt(msg.key.remoteJid, msg.key.participant, [msg.key.id])
-            // await sendMessageWTyping({ text: 'Hello there!' }, msg.key.remoteJid)
+        const key = m.messages[0].key
+        const message = m.messages[0].message
+        
+        console.log( {key, message} )
 
-            const key = m.messages[0].key
-            const message = m.messages[0].message
+        await sock[token].sendPresenceUpdate('unavailable', key.remoteJid)
+        io.emit('message-upsert', {token, key, message})
 
-            await sock[token].sendPresenceUpdate('unavailable', key.remoteJid)
-
-            process.env.NODE_ENV.trim() !== 'production' ? console.log( {key, message} ) : null
-
-            io.emit('message-upsert', {token, key, message})
-    
-            /** START WEBHOOK */
-            const url = process.env.WEBHOOK
-            if ( url ) {
-                axios.post(url, {
-                    key: key,
-                    message: message
-                })
-                .then(function (response) {
-                    console.log(response);
-                    try {
-                        io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
-                    } catch (error) {
-                        lib.log.error(error)
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                    try {
-                        io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
-                    } catch (error) {
-                        lib.log.error(error)
-                    }
-                });
-            }
-            /** END WEBHOOK */
+        /** START WEBHOOK */
+        const url = process.env.WEBHOOK
+        if ( url ) {
+            axios.post(url, {
+                key: key,
+                message: message
+            })
+            .then(function (response) {
+                console.log(response);
+                try {
+                    io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+                } catch (error) {
+                    lib.log.error(error)
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                try {
+                    io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+                } catch (error) {
+                    lib.log.error(error)
+                }
+            });
         }
-
+        /** END WEBHOOK */
 
     })
 
-    sock[token].ev.on('messages.update', m => {
-        console.log(m)
-        store?.writeToFile(`credentials/${token}/multistore.js`)
-    })
+    // sock[token].ev.on('messages.update', m => console.log(m))
     // sock[token].ev.on('message-receipt.update', m => console.log(m))
     // sock[token].ev.on('presence.update', m => console.log(m))
-    sock[token].ev.on('chats.update', m => {
-        console.log(m)
-        store?.writeToFile(`credentials/${token}/multistore.js`)
-    })
-    sock[token].ev.on('chats.delete', m => {
-        console.log(m)
-        store?.writeToFile(`credentials/${token}/multistore.js`)
-    })
-    sock[token].ev.on('contacts.upsert', m => {
-        console.log(m)
-        store?.writeToFile(`credentials/${token}/multistore.js`)
-    })
+    // sock[token].ev.on('chats.update', m => console.log(m))
+    // sock[token].ev.on('chats.delete', m => console.log(m))
+    // sock[token].ev.on('contacts.upsert', m => console.log(m))
 
     sock[token].ev.on('connection.update', async (update) => {
         const { connection, qr, lastDisconnect } = update
-
-        // connection close
         if(connection === 'close') {
             // reconnect if not logged out
             if((lastDisconnect.error)?.output?.statusCode !== DisconnectReason.loggedOut) {
                 connectToWhatsApp(token, io)
             } else {
-                fs.rmSync(`credentials/${token}`, { recursive: true, force: true });
-                clearInterval(intervalStore)
-                delete sock[token]
                 console.log('Connection closed. You are logged out.')
-                return {
-                    status: false,
-                    message: 'Connection closed. You are logged out.'
-                }
+                clearInterval(interalStore)
+                delete sock[token]
+                io.emit('message', {message: 'Connection closed. You are logged out.'})
+                fs.rmdir(`credentials/${token}`, { recursive: true }, (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    console.log(`credentials/${token} is deleted`);
+                });
             }
         }
 
-        //catch qr code
         if (qr) {
+            // console.log('QR CODE:\n'+qr)
+
             // CONVERT THE QRCODE TO DATA URL
             // SEND TO YOUR CLIENT SIDE
             QRCode.toDataURL(qr, function (err, url) {
                 if (err) {
                     logger.error(err)
                 }
-                qrcode[token] = url
+                qrcode[token]=url
                 try {
                     io.emit('qrcode', {token, data: url})
                 } catch (error) {
@@ -236,26 +194,200 @@ const connectToWhatsApp = async (token, io) => {
             number = number[0]+'@s.whatsapp.net'
 
             const ppUrl = await getPpUrl(token, number)
-
-            try {
-                io.emit('connection-open', {token, user: sock[token].user, ppUrl})
-            } catch (error) {
-                lib.log.error(error)
-            }
+            io.emit('connection-open', {token, user: sock[token].user, ppUrl})
         }
 
-        // console.log('connection update', update)
+        console.log('connection update', update)
     })
+    
     // listen for when the auth credentials is updated
     sock[token].ev.on('creds.update', saveCreds)
 
-    // return sock[token]
-    return {
-        status: true,
-        message: `Allready connected, if still failed delete folder credentials/${token}`,
-        user: sock[token].user
-    }
+    return sock[token]
 }
+ 
+//  startSock("test")
+
+// connection
+// async function connectToWhatsApp(token, io) {
+
+//     if ( typeof sock[token] !== 'undefined' ) {
+//         return sock[token]
+//     }
+
+//     // fetch latest version of WA Web
+// 	const { version, isLatest } = await fetchLatestBaileysVersion()
+// 	console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
+
+//     const useStore = !process.argv.includes('--no-store')
+    
+//     const store = useStore ? makeInMemoryStore({ }) : undefined
+
+//     // can be read from a file
+//     store.readFromFile(`credentials/store/${token}.json`)
+
+//     // saves the state to a file every 60s
+//     const intervalStore = setInterval(() => {
+//         store.writeToFile(`credentials/store/${token}.json`)
+//         logger.info({token, message: 'Storing data'})
+//     }, 60_000)
+
+//     const { state, saveState } = useSingleFileAuthState(`credentials/${token}.json`)
+
+//     sock[token] = makeWASocket({
+//         version,
+//         printQRInTerminal: process.env.NODE_ENV.trim() !== 'production' ? true : false,
+//         logger: logger,
+//         auth: state,
+//         getMessage: function (key) { return Promise(key); },
+//         browser: ["nDalu.id", "chrome", "1.0.0"]
+//     })
+
+//     // bind
+//     store.bind(sock[token].ev)
+
+//     // update connection
+//     sock[token].ev.on('connection.update', async (update) => {
+//         const { qr, connection, lastDisconnect } = update
+
+//         //catch qr code
+//         if (qr && qr !== 'undefined') {
+//             // console.log('QR CODE:\n'+qr)
+
+//             // CONVERT THE QRCODE TO DATA URL
+//             // SEND TO YOUR CLIENT SIDE
+//             QRCode.toDataURL(qr, function (err, url) {
+//                 if (err) {
+//                     logger.error(err)
+//                 }
+//                 qrcode[token]=url
+//                 try {
+//                     io.emit('qrcode', {token, data: url})
+//                 } catch (error) {
+//                     lib.log.error(error)
+//                 }
+//             })
+//         }
+
+//         // if connection is ...
+//         if(connection === 'close') {
+
+//             if (lastDisconnect.error.isBoom) {
+//                 const shouldReconnect = lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
+//                 const statusCode = lastDisconnect.error.output.statusCode
+
+//                 if ( !shouldReconnect) {
+//                     console.log(statusCode)
+//                     console.log(shouldReconnect)
+//                     logger.warn(lastDisconnect.error.output.payload.message)
+//                     try {
+//                         (fs.existsSync(`credentials/${token}.json`) && fs.unlinkSync(`credentials/${token}.json`))
+//                         clearInterval(intervalStore)
+//                         delete sock[token]
+//                     } catch (error) {
+//                         logger.error(error)
+//                     }
+//                 } else {
+//                     logger.info('Connecting')
+//                     connectToWhatsApp(token, io)
+//                 }
+                
+//             }
+//         } else if(connection === 'open') {
+//             logger.info('opened connection')
+//             logger.info(sock[token].user)
+//             await sock[token].sendPresenceUpdate('unavailable')
+
+//             let number = sock[token].user.id.split(':')
+//             number = number[0]+'@s.whatsapp.net'
+
+//             const ppUrl = await getPpUrl(token, number)
+
+//             try {
+//                 io.emit('connection-open', {token, user: sock[token].user, ppUrl})
+//             } catch (error) {
+//                 lib.log.error(error)
+//             }
+//         }
+//     })
+
+//     // message upsert
+//     sock[token].ev.on('messages.upsert', async m => {
+
+//         await sock[token].sendPresenceUpdate('unavailable')
+//         // console.log('got contacts', Object.values(store.chats))
+//         store.writeToFile(`credentials/store/${token}.json`)
+
+//         const key = m.messages[0].key
+//         const message = m.messages[0].message
+//         console.log( {key, message} )
+
+//         try {
+//             io.emit('message-upsert', {token, key, message})
+//         } catch (error) {
+//             lib.log.error(error)
+//         }
+
+//         /** START WEBHOOK */
+//         const url = process.env.WEBHOOK
+//         if ( url ) {
+//             axios.post(url, {
+//                 key: key,
+//                 message: message
+//             })
+//             .then(function (response) {
+//                 console.log(response);
+//                 try {
+//                     io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
+//                 } catch (error) {
+//                     lib.log.error(error)
+//                 }
+//             })
+//             .catch(function (error) {
+//                 console.log(error);
+//                 try {
+//                     io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
+//                 } catch (error) {
+//                     lib.log.error(error)
+//                 }
+//             });
+//         }
+//         /** END WEBHOOK */
+
+//     })
+    
+//     // success connection
+//     sock[token].ev.on ('creds.update', saveState)
+
+//     // contacts upsert
+//     sock[token].ev.on('contacts.upsert', async contacts => {
+
+//         await sock[token].sendPresenceUpdate('unavailable')
+//         // console.log('got contacts', Object.values(store.contacts))
+//         store.writeToFile(`credentials/store/${token}.json`)
+
+//     })
+
+//     // chat set
+//     sock[token].ev.on('chats.set', () => {
+
+//         // can use "store.chats" however you want, even after the socket dies out
+//         // "chats" => a KeyedDB instance
+//         // console.log('got chats', store.chats.all())
+//         store.writeToFile(`credentials/store/${token}.json`)
+
+//     })
+
+//     // contacts set
+//     sock[token].ev.on('contacts.set', () => {
+
+//         // console.log('got contacts', Object.values(store.contacts))
+//         store.writeToFile(`credentials/store/${token}.json`)
+
+//     })
+
+//     return sock[token]
+// }
 
 // text message
 async function sendText(token, number, text) {
@@ -398,9 +530,9 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
     
     try {
         const templateButtons = [
-            {index: 1, urlButton: {displayText: button[0]?.displayText, url: button[0]?.url}},
-            {index: 2, callButton: {displayText: button[1]?.displayText, phoneNumber: button[1]?.phoneNumber}},
-            {index: 3, quickReplyButton: {displayText: button[2]?.displayText, id: button[2]?.id}},
+            {index: 1, urlButton: {displayText: button[0].displayText, url: button[0].url}},
+            {index: 2, callButton: {displayText: button[1].displayText, phoneNumber: button[1].phoneNumber}},
+            {index: 3, quickReplyButton: {displayText: button[2].displayText, id: button[2].id}},
         ]
 
         const buttonMessage = {
