@@ -31,10 +31,10 @@
 
 # WEBHOOK
     READ file src/router/model/whatsapp.js
-    LINE 122
+    LINE 141
 
     /** START WEBHOOK */
-    const url = 'https://your-webhook.com'
+    const url = process.env.WEBHOOK
     axios.post(url, {
         key: key,
         message: message
@@ -163,7 +163,7 @@
     type == 'zip'
     type == 'mp3'
 
-    src/router/model/whatsapp.js start from line 216
+    src/router/model/whatsapp.js start from line 222
     Update with your own mimetype if you need
 
 #
