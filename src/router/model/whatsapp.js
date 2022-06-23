@@ -536,22 +536,14 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
         ]
 
         
-          if (image) {
+          
              const buttonMessage = {
             caption: text,
             footer: footer,
             templateButtons: templateButtons,
             image: {url: image}
         }
-        } else {
-              const buttonMessage = {
-            caption: text,
-            footer: footer,
-            templateButtons: templateButtons
-          
-        }
-        }
-        
+              
         
 
         const sendMsg = await sock[token].sendMessage(number, buttonMessage)
