@@ -504,7 +504,7 @@ async function sendButtonMessage(token, number, button, message, footer, type, i
                 image: type == 'url' ? {url: image} : fs.readFileSync('src/public/temp/'+image),
                 // jpegThumbnail: await lib.base64_encode(),
                 caption: message,
-                footerText: footer,
+                footer: footer,
                 buttons: buttons,
                 headerType: 4
             }
