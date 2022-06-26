@@ -10,6 +10,7 @@ const lib = require('../../lib')
 const fs = require('fs')
 let sock = []
 let qrcode = []
+let intervalStore = []
 
 const axios = require('axios')
 
@@ -35,11 +36,22 @@ const axios = require('axios')
  
 const connectToWhatsApp = async (token, io) => {
 
+    if ( typeof qrcode[token] !== 'undefined' ) {
+        console.log(`> QRCODE ${token} IS READY`)
+        return {
+            status: false,
+            sock: sock[token],
+            qrcode: qrcode[token],
+            message: "Please scann qrcode"
+        }
+    }
+
     try {
         let number = sock[token].user.id.split(':')
         number = number[0]+'@s.whatsapp.net'        
         const ppUrl = await getPpUrl(token, number)
-        return { status: false, message: 'Already connected'}
+        io.emit('connection-open', {token, user: sock[token].user, ppUrl})
+        return { status: true, message: 'Already connected'}
     } catch (error) {
         console.log(error)
     }
@@ -54,8 +66,12 @@ const connectToWhatsApp = async (token, io) => {
     const store = useStore ? makeInMemoryStore({ logger }) : undefined
     store?.readFromFile(`credentials/${token}/multistore.js`)
     // save every 10s
-    const interalStore = setInterval(() => {
-        store?.writeToFile(`credentials/${token}/multistore.js`)
+    intervalStore[token] = setInterval(() => {
+        try {
+            store?.writeToFile(`credentials/${token}/multistore.js`)
+        } catch (error) {
+            console.log(error)
+        }
     }, 10_000)
 
     sock[token] = makeWASocket({
@@ -155,7 +171,7 @@ const connectToWhatsApp = async (token, io) => {
                 connectToWhatsApp(token, io)
             } else {
                 console.log('Connection closed. You are logged out.')
-                clearInterval(interalStore)
+                clearInterval(intervalStore[token])
                 delete sock[token]
                 io.emit('message', {message: 'Connection closed. You are logged out.'})
                 fs.rmdir(`credentials/${token}`, { recursive: true }, (err) => {
@@ -176,7 +192,7 @@ const connectToWhatsApp = async (token, io) => {
                 if (err) {
                     logger.error(err)
                 }
-                qrcode[token]=url
+                qrcode[token] = url
                 try {
                     io.emit('qrcode', {token, data: url})
                 } catch (error) {
@@ -195,6 +211,7 @@ const connectToWhatsApp = async (token, io) => {
 
             const ppUrl = await getPpUrl(token, number)
             io.emit('connection-open', {token, user: sock[token].user, ppUrl})
+            delete qrcode[token]
         }
 
         console.log('connection update', update)
@@ -203,191 +220,11 @@ const connectToWhatsApp = async (token, io) => {
     // listen for when the auth credentials is updated
     sock[token].ev.on('creds.update', saveCreds)
 
-    return sock[token]
+    return {
+        sock: sock[token],
+        qrcode: qrcode[token]
+    }
 }
- 
-//  startSock("test")
-
-// connection
-// async function connectToWhatsApp(token, io) {
-
-//     if ( typeof sock[token] !== 'undefined' ) {
-//         return sock[token]
-//     }
-
-//     // fetch latest version of WA Web
-// 	const { version, isLatest } = await fetchLatestBaileysVersion()
-// 	console.log(`using WA v${version.join('.')}, isLatest: ${isLatest}`)
-
-//     const useStore = !process.argv.includes('--no-store')
-    
-//     const store = useStore ? makeInMemoryStore({ }) : undefined
-
-//     // can be read from a file
-//     store.readFromFile(`credentials/store/${token}.json`)
-
-//     // saves the state to a file every 60s
-//     const intervalStore = setInterval(() => {
-//         store.writeToFile(`credentials/store/${token}.json`)
-//         logger.info({token, message: 'Storing data'})
-//     }, 60_000)
-
-//     const { state, saveState } = useSingleFileAuthState(`credentials/${token}.json`)
-
-//     sock[token] = makeWASocket({
-//         version,
-//         printQRInTerminal: process.env.NODE_ENV.trim() !== 'production' ? true : false,
-//         logger: logger,
-//         auth: state,
-//         getMessage: function (key) { return Promise(key); },
-//         browser: ["nDalu.id", "chrome", "1.0.0"]
-//     })
-
-//     // bind
-//     store.bind(sock[token].ev)
-
-//     // update connection
-//     sock[token].ev.on('connection.update', async (update) => {
-//         const { qr, connection, lastDisconnect } = update
-
-//         //catch qr code
-//         if (qr && qr !== 'undefined') {
-//             // console.log('QR CODE:\n'+qr)
-
-//             // CONVERT THE QRCODE TO DATA URL
-//             // SEND TO YOUR CLIENT SIDE
-//             QRCode.toDataURL(qr, function (err, url) {
-//                 if (err) {
-//                     logger.error(err)
-//                 }
-//                 qrcode[token]=url
-//                 try {
-//                     io.emit('qrcode', {token, data: url})
-//                 } catch (error) {
-//                     lib.log.error(error)
-//                 }
-//             })
-//         }
-
-//         // if connection is ...
-//         if(connection === 'close') {
-
-//             if (lastDisconnect.error.isBoom) {
-//                 const shouldReconnect = lastDisconnect.error.output.statusCode !== DisconnectReason.loggedOut
-//                 const statusCode = lastDisconnect.error.output.statusCode
-
-//                 if ( !shouldReconnect) {
-//                     console.log(statusCode)
-//                     console.log(shouldReconnect)
-//                     logger.warn(lastDisconnect.error.output.payload.message)
-//                     try {
-//                         (fs.existsSync(`credentials/${token}.json`) && fs.unlinkSync(`credentials/${token}.json`))
-//                         clearInterval(intervalStore)
-//                         delete sock[token]
-//                     } catch (error) {
-//                         logger.error(error)
-//                     }
-//                 } else {
-//                     logger.info('Connecting')
-//                     connectToWhatsApp(token, io)
-//                 }
-                
-//             }
-//         } else if(connection === 'open') {
-//             logger.info('opened connection')
-//             logger.info(sock[token].user)
-//             await sock[token].sendPresenceUpdate('unavailable')
-
-//             let number = sock[token].user.id.split(':')
-//             number = number[0]+'@s.whatsapp.net'
-
-//             const ppUrl = await getPpUrl(token, number)
-
-//             try {
-//                 io.emit('connection-open', {token, user: sock[token].user, ppUrl})
-//             } catch (error) {
-//                 lib.log.error(error)
-//             }
-//         }
-//     })
-
-//     // message upsert
-//     sock[token].ev.on('messages.upsert', async m => {
-
-//         await sock[token].sendPresenceUpdate('unavailable')
-//         // console.log('got contacts', Object.values(store.chats))
-//         store.writeToFile(`credentials/store/${token}.json`)
-
-//         const key = m.messages[0].key
-//         const message = m.messages[0].message
-//         console.log( {key, message} )
-
-//         try {
-//             io.emit('message-upsert', {token, key, message})
-//         } catch (error) {
-//             lib.log.error(error)
-//         }
-
-//         /** START WEBHOOK */
-//         const url = process.env.WEBHOOK
-//         if ( url ) {
-//             axios.post(url, {
-//                 key: key,
-//                 message: message
-//             })
-//             .then(function (response) {
-//                 console.log(response);
-//                 try {
-//                     io.emit('message-upsert', {token, key, message: message, info: 'Your webhook is configured', response: response})
-//                 } catch (error) {
-//                     lib.log.error(error)
-//                 }
-//             })
-//             .catch(function (error) {
-//                 console.log(error);
-//                 try {
-//                     io.emit('message-upsert', {token, key, message: message, alert: 'This is because you not set your webhook to receive this action', error: error})
-//                 } catch (error) {
-//                     lib.log.error(error)
-//                 }
-//             });
-//         }
-//         /** END WEBHOOK */
-
-//     })
-    
-//     // success connection
-//     sock[token].ev.on ('creds.update', saveState)
-
-//     // contacts upsert
-//     sock[token].ev.on('contacts.upsert', async contacts => {
-
-//         await sock[token].sendPresenceUpdate('unavailable')
-//         // console.log('got contacts', Object.values(store.contacts))
-//         store.writeToFile(`credentials/store/${token}.json`)
-
-//     })
-
-//     // chat set
-//     sock[token].ev.on('chats.set', () => {
-
-//         // can use "store.chats" however you want, even after the socket dies out
-//         // "chats" => a KeyedDB instance
-//         // console.log('got chats', store.chats.all())
-//         store.writeToFile(`credentials/store/${token}.json`)
-
-//     })
-
-//     // contacts set
-//     sock[token].ev.on('contacts.set', () => {
-
-//         // console.log('got contacts', Object.values(store.contacts))
-//         store.writeToFile(`credentials/store/${token}.json`)
-
-//     })
-
-//     return sock[token]
-// }
 
 // text message
 async function sendText(token, number, text) {
@@ -535,12 +372,21 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
             {index: 3, quickReplyButton: {displayText: button[2].displayText, id: button[2].id}},
         ]
 
-        const buttonMessage = {
-            caption: text,
-            footer: footer,
-            templateButtons: templateButtons,
-            image: {url: image}
+        if ( image ) {
+            var buttonMessage = {
+                caption: text,
+                footer: footer,
+                templateButtons: templateButtons,
+                image: {url: image}
+            }
+        } else {
+            var buttonMessage = {
+                text: text,
+                footer: footer,
+                templateButtons: templateButtons
+            }
         }
+
 
         const sendMsg = await sock[token].sendMessage(number, buttonMessage)
         return sendMsg
@@ -651,10 +497,21 @@ async function groupMetadata(token, number) {
 function deleteCredentials(token) {
     try {
         delete sock[token]
-        fs.existsSync('credentials/'+token.json) && fs.unlinkSync('credentials/'+token.json) && fs.existsSync('credentials/store/'+token.json) && fs.unlinkSync('credentials/store/'+token.json)
-        return 'Deleting session and credential'
+        clearInterval(intervalStore[token])
+        fs.rmdir(`credentials/${token}`, { recursive: true }, (err) => {
+            if (err) {
+                throw err;
+            }
+            console.log(`credentials/${token} is deleted`);
+        });
+        // fs.existsSync('credentials/'+token.json) && fs.unlinkSync('credentials/'+token.json) && fs.existsSync('credentials/store/'+token.json) && fs.unlinkSync('credentials/store/'+token.json)
+        return {
+            status: true, message: 'Deleting session and credential'
+        }
     } catch (error) {
-        return 'Nothing deleted'
+        return {
+            status: true, message: 'Nothing deleted'
+        }
     }
 }
 

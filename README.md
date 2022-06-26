@@ -6,6 +6,28 @@
     credential and store will saved in the credentials file.
     Still not trying much, maybe have a bug. Not already checked for more details during my activity.
 
+# EMIT LIST
+
+    event: 'connection-open'
+    data: {token, user, ppUrl}
+
+    event: 'message-upsert'
+    data: {token, key, message}
+
+    event: 'message'
+    data: {message}
+
+    event: 'qrcode'
+    data: {token, data}
+
+    event: 'message'
+    data: {message}
+
+    socket.on('event', (data) => {
+        // do something with this data
+        console.log(data)
+    })
+
 # DOCUMENTATION
     BEFORE INSTALLATION
     Create folder named credentials
@@ -83,6 +105,24 @@
     --data-raw '{
         "token": "sometoken"
     }'
+
+#
+    DELETE INSTANCE (VERY RECOMENDED TO CLOSE FROM WHATSAPP DEVICE)
+    curl --location --request POST 'localhost:3000/api/whatsapp/delete-credential' \
+    --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "token": "token"
+    }'
+
+    RESPONSE
+    {
+        "status": true,
+        "data": {
+            "status": true,
+            "message": "Deleting session and credential"
+        }
+    }
 
 #
     SEND TEXT MESSAGE
@@ -491,23 +531,8 @@
     RESPONSE
     {
         "status": true,
-        "data": {
-            "key": {
-                "remoteJid": "000000@s.whatsapp.net",
-                "fromMe": true,
-                "id": "BAE5BC264332E3D5"
-            },
-            "message": {
-                "reactionMessage": {
-                    "text": "[object Object]"
-                }
-            },
-            "messageTimestamp": "1654786814",
-            "status": "PENDING"
-        }
+        "data": {...data}
     }
-
-    // Unfortunally, sometime message not deleted, let me monitoring from github bailyes issues
 
 #
     GROUP METADATA
