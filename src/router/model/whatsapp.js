@@ -341,7 +341,7 @@ async function sendButtonMessage(token, number, button, message, footer, type, i
                 image: type == 'url' ? {url: image} : fs.readFileSync('src/public/temp/'+image),
                 // jpegThumbnail: await lib.base64_encode(),
                 caption: message,
-                footerText: footer,
+                footer: footer,
                 buttons: buttons,
                 headerType: 4
             }
@@ -372,6 +372,7 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
             {index: 3, quickReplyButton: {displayText: button[2].displayText, id: button[2].id}},
         ]
 
+<<<<<<< HEAD
         if ( image ) {
             var buttonMessage = {
                 caption: text,
@@ -385,7 +386,18 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
                 footer: footer,
                 templateButtons: templateButtons
             }
+=======
+        
+          
+             const buttonMessage = {
+            caption: text,
+            footer: footer,
+            templateButtons: templateButtons,
+            image: {url: image}
+>>>>>>> 44e147b27a705fe39f9214bee51abfb1b9ef8e5c
         }
+              
+        
 
 
         const sendMsg = await sock[token].sendMessage(number, buttonMessage)
