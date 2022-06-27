@@ -372,7 +372,6 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
             {index: 3, quickReplyButton: {displayText: button[2].displayText, id: button[2].id}},
         ]
 
-<<<<<<< HEAD
         if ( image ) {
             var buttonMessage = {
                 caption: text,
@@ -386,19 +385,7 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
                 footer: footer,
                 templateButtons: templateButtons
             }
-=======
-        
-          
-             const buttonMessage = {
-            caption: text,
-            footer: footer,
-            templateButtons: templateButtons,
-            image: {url: image}
->>>>>>> 44e147b27a705fe39f9214bee51abfb1b9ef8e5c
         }
-              
-        
-
 
         const sendMsg = await sock[token].sendMessage(number, buttonMessage)
         return sendMsg
