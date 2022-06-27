@@ -173,7 +173,8 @@ const connectToWhatsApp = async (token, io) => {
                 console.log('Connection closed. You are logged out.')
                 clearInterval(intervalStore[token])
                 delete sock[token]
-                io.emit('message', {message: 'Connection closed. You are logged out.'})
+                delete qrcode[token]
+                io.emit('message', {token: token, message: 'Connection closed. You are logged out.'})
                 fs.rmdir(`credentials/${token}`, { recursive: true }, (err) => {
                     if (err) {
                         throw err;
@@ -194,7 +195,7 @@ const connectToWhatsApp = async (token, io) => {
                 }
                 qrcode[token] = url
                 try {
-                    io.emit('qrcode', {token, data: url})
+                    io.emit('qrcode', {token, data: url, message: "Qrcode updated, please scann with your Whatsapp Device"})
                 } catch (error) {
                     lib.log.error(error)
                 }
@@ -214,7 +215,20 @@ const connectToWhatsApp = async (token, io) => {
             delete qrcode[token]
         }
 
-        console.log('connection update', update)
+        if ( lastDisconnect?.error) {
+            console.log(lastDisconnect.error)
+            clearInterval(intervalStore[token])
+            delete sock[token]
+            delete qrcode[token]
+            fs.rmdir(`credentials/${token}`, { recursive: true }, (err) => {
+                if (err) {
+                    throw err;
+                }
+                console.log(`credentials/${token} is deleted`);
+            });
+            io.emit('message', {token: token, message: lastDisconnect})
+        }
+        // console.log('connection update', update)
     })
     
     // listen for when the auth credentials is updated

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documents</title>
+    <title>Document</title>
 
     <style>
         html, body {
@@ -26,13 +26,10 @@
 
     <!-- SOCKET.IO -->
     <!-- Check the server url to replace this -->
-    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io("http://localhost:3000")
+        const socket = io()
     </script>
-
-    <!-- JQUERY -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
 </head>
 <body>
@@ -62,28 +59,34 @@
 
 <script>
 
+    // prompter optional
     const pre = document.querySelector('#pre')
+    // element token or your PHP session/database token
     const checkToken = document.querySelector('#token')
+    // element image
     const qrcode = document.querySelector('#qrcode')
-
+    // element post
     const form = document.querySelector('#token-form')
     if ( form ) form.addEventListener('submit', async (e) => {
         e.preventDefault()
         const token = document.querySelector('input[name="token"]')
         if (token.value) {
             checkToken.value = token.value
-
-            // USING JQUERY
-            $.post({
-                url: 'post.php',
-                data: {token: token.value},
-                success: function(result) {
-                    return pre.innerHTML = JSON.stringify(result, undefined, 2)
+            const req = await fetch('/api/whatsapp/create-instance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg=='
                 },
-                error: function (err) {
-                    console.log(err)
-                }
+                body: JSON.stringify({token: token.value})
             })
+            // result as json
+            const res = await req.json()
+            if (res.qrcode) { // if result has qrcode
+                qrcode.src = res.qrcode // set element image src to res.qrcode
+            }
+            // diplay result to prompter
+            return pre.innerHTML = JSON.stringify(res, undefined, 2)
         }
         pre.innerHTML = JSON.stringify({message: 'Token must not be empty'}, undefined, 2)
     })
@@ -92,6 +95,7 @@
 
     // to receiving message from server
     socket.on('message', (data) => {
+        console.log(data)
         // Check if token is same with te data.token, show the qrcode
         if (data.token === checkToken.value) { // remove if you want to watching entire connection
             pre.innerHTML = JSON.stringify(data, undefined, 2)
@@ -111,7 +115,6 @@
         // Check if token is same with te data.token, show the qrcode
         if (data.token === checkToken.value) { // Don't remove or you will confuse if at the same time other people is request a qrcode too
             qrcode.src = data.data
-            pre.innerHTML = JSON.stringify(data, undefined, 2)
         }
     })
 
