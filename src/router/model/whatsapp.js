@@ -372,10 +372,6 @@ async function sendTemplateMessage(token, number, button, text, footer, image) {
             {index: 3, quickReplyButton: {displayText: button[2].displayText, id: button[2].id}},
         ]
 
-<<<<<<< HEAD
-=======
->>>>>>> HEAD
->>>>>>> c78330832ff07d1f7522259a7c945c523208dac9
         if ( image ) {
             var buttonMessage = {
                 caption: text,
