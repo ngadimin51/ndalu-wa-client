@@ -1,4 +1,11 @@
-# UPDATE
+![wa.ndal.id!](https://wa.ndalu.id/favicon.png "Tofik Nuryanto")
+
+# Ndalu-wa-client
+
+    Whatsapp API based on baileys.
+    Demo check here [wa.ndalu.id](https://wa.ndalu.id)
+
+## UPDATE
 
     Baileys nolonger using useSingeFileAuthState, now using useMultiFileAuthState.
     Script updated using last baileys documentation.
@@ -6,8 +13,9 @@
     credential and store will saved in the credentials file.
     Still not trying much, maybe have a bug. Not already checked for more details during my activity.
 
-# EMIT LIST
+## EMIT LIST
 
+    // This app is emitting event:
     event: 'connection-open'
     data: {token, user, ppUrl}
 
@@ -23,15 +31,16 @@
     event: 'message'
     data: {message}
 
+    // Your client side use this on your js
     socket.on('event', (data) => {
         // do something with this data
         console.log(data)
     })
 
-# DOCUMENTATION
+## DOCUMENTATION
+
     BEFORE INSTALLATION
     Create folder named credentials
-    Create folder name store inside the credentials // nomore using this
 
     TO INSTALL
     yarn install
@@ -44,22 +53,31 @@
     WINDOWS: yarn win-start
     LINUX: yarn start
 
-# ENV
+    If you deploy to VPS and your client side is different domain, make sure this rule:
+    1. API https Client http
+    2. API https Client https
+    3. API http Client http
+
+## ENV
 
     ALWAYS CHECK YOUR .env FILE
-    PORT = 3000 // port for your nodejs api
+    PORT = 3000 // port for your nodejs api (http://localhost:3000)
     AUTH = Ndalu-server-uUdkfgli783pkfnlaskogoighr // key to protect your api server from attacker, you can change but must change the headers auth. Try using postman to generate the auth
     ORIGIN = http://localhost // your client domain
+    WEBHOOK = http://localhost/webhook-catch-message-from-api
 
-# EXAMPLE
-    ![examle page](https://github.com/ngadimin51/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true)
+## EXAMPLE
 
+    ![examle page](/src/public/sample-page.png "sample")
+
+    run the app and open http://localhost:PORT
     I just add example page using static html. Remove this if you done with your update
 
-    Updated PHP native sample with cross server and different port.
-    Check the PHP folder, using jquery for index.php to ajax call and using curl on post.php
+    If you using PHP on client side you can check PHP folder.
+    Index.php is client interface and post.php is controller to handle post to API
 
-# WEBHOOK
+## WEBHOOK
+
     READ file src/router/model/whatsapp.js
     LINE 141
 
@@ -82,7 +100,8 @@
     REPLACE the [url] value with your webhook url, this action will send all actifity to your webhook
     It send 3 value, token, key, and message. Do something action with your webhook.
 
-# AUTOSTART INSTANCE
+## AUTOSTART INSTANCE
+
     WHEN YOU SEEN ERROR MESSAGE LIKE THIS
 
     ERROR [2022-06-12 09:02:00.173 +0700]: Cannot read property 'emit' of undefined
@@ -97,8 +116,8 @@
 
     It cause auto start not emitting data to client. It's ok
 
-#
-    CONNECTION
+## CONNECTION
+    
     curl --location --request POST 'localhost:3000/api/whatsapp/create-instance' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -106,8 +125,8 @@
         "token": "sometoken"
     }'
 
-#
-    DELETE INSTANCE (VERY RECOMENDED TO CLOSE FROM WHATSAPP DEVICE)
+## DELETE INSTANCE (VERY RECOMENDED TO CLOSE FROM WHATSAPP DEVICE)
+
     curl --location --request POST 'localhost:3000/api/whatsapp/delete-credential' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
     --header 'Content-Type: application/json' \
@@ -124,8 +143,8 @@
         }
     }
 
-#
-    SEND TEXT MESSAGE
+## SEND TEXT MESSAGE
+
     curl --location --request POST 'localhost:3000/api/whatsapp/send-text' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -154,8 +173,8 @@
         }
     }
 
-#
-    SEND MEDIA
+## SEND MEDIA
+
     curl --location --request POST 'localhost:3000/api/whatsapp/send-media' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -214,8 +233,8 @@
     src/router/model/whatsapp.js start from line 222
     Update with your own mimetype if you need
 
-#
-    SEND BUTTON MESSAGE
+## SEND BUTTON MESSAGE
+
     curl --location --request POST 'localhost:3000/api/whatsapp/send-button-message' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -288,8 +307,10 @@
         }
     }
 
-#
-    SEND TEMPLATE MESSAGE (If you message is sent back to your device, check your desktop whatsapp. Fix on desktop. Bug from baileys)
+## SEND TEMPLATE MESSAGE
+
+    (If you message is sent back to your device, check your desktop whatsapp. Fix on desktop. Bug from baileys)
+
     curl --location --request POST 'localhost:3000/api/whatsapp/send-template-message' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -353,8 +374,10 @@
 
     // Unfortunally, image is not displayed for now, let me monitoring from github bailyes issues
 
-#
-    SEND LIST MESSAGE (NO IMAGE SUPPORTED, read baileys. https://github.com/adiwajshing/Baileys)
+## SEND LIST MESSAGE
+
+    (NO IMAGE SUPPORTED, read baileys. https://github.com/adiwajshing/Baileys)
+
     curl --location --request POST 'localhost:3000/api/whatsapp/send-list-message' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -437,8 +460,8 @@
         }
     }
 
-#
-    SEND REACTION
+## SEND REACTION
+
     curl --location --request POST 'localhost:3000/api/whatsapp/send-reaction' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -477,8 +500,8 @@
         }
     }
 
-#
-    IS EXISTS
+## IS EXISTS
+
     curl --location --request POST 'localhost:3000/api/whatsapp/is-exists' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -496,8 +519,8 @@
         }
     }
 
-#
-    GET PROFILE PICTURE URL
+## GET PROFILE PICTURE URL
+
     curl --location --request POST 'localhost:3000/api/whatsapp/get-profile-picture' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -513,8 +536,8 @@
         "data": "https://pps.whatsapp.net/v/t61.24694-24/175575661_389612149492065_1766253441851505238_n.jpg?ccb=11-4&oh=be11861a0046460383de6c9da800a184&oe=62B101AD"
     }
 
-#
-    DELETE FOR EVERYONE
+## DELETE FOR EVERYONE
+
     curl --location --request POST 'localhost:3000/api/whatsapp/delete-for-every-one' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -534,8 +557,8 @@
         "data": {...data}
     }
 
-#
-    GROUP METADATA
+## GROUP METADATA
+
     curl --location --request POST 'localhost:3000/api/whatsapp/group-metadata' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -570,9 +593,9 @@
             ]
         }
     }
-    
-#
-    STORE
+
+## STORE
+
     curl --location --request POST 'localhost:3000/api/whatsapp/store/chats' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
@@ -652,3 +675,13 @@
             "status": "PENDING"
         }
     ]
+
+Please Fork
+
+Star :star:
+
+Share
+
+[Donation](https://paypal.me/tofiknuryanto)
+
+Still updating every have a break time from my activity
