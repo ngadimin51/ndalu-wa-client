@@ -2,8 +2,8 @@
 
 # Ndalu-wa-client
 
-    Whatsapp API based on baileys.
-    Demo check here [wa.ndalu.id](https://wa.ndalu.id)
+Whatsapp API based on baileys.
+Demo visit here [wa.ndalu.id](https://wa.ndalu.id)
 
 ## UPDATE
 
