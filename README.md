@@ -68,7 +68,7 @@ Demo visit here [wa.ndalu.id](https://wa.ndalu.id)
 
 ## EXAMPLE
 
-![example page](/src/public/sample-page.png "sample")
+![example page](https://github.com/[ngadimin51]/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true "sample")
 
     run the app and open http://localhost:PORT
     I just add example page using static html. Remove this if you done with your update

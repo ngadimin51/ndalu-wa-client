@@ -1,7 +1,7 @@
 {
   "name": "ndalu-wa-client",
   "version": "1.0.0",
-  "description": "",
+  "description": "Whatsapp remote API multi device, multi instance. Based on baileys. Wanna more support contact me https://caket.org ||  https://ndalu.id",
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=development nodemon src/index",
@@ -10,7 +10,7 @@
     "win-start": "SET NODE_ENV=production && node src/index"
   },
   "keywords": [],
-  "author": "Tofik - ndalu.id",
+  "author": "Tofik - ndalu.id | caket.org",
   "license": "MIT",
   "dependencies": {
     "@adiwajshing/baileys": "^4.2.0",
