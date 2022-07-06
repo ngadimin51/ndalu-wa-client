@@ -68,7 +68,7 @@ Demo visit here [wa.ndalu.id](https://wa.ndalu.id)
 
 ## EXAMPLE
 
-![example page](https://github.com/[ngadimin51]/ndalu-wa-client/blob/main/src/public/sample-page.png?raw=true "sample")
+![example page](/src/public/sample-page.png)
 
     run the app and open http://localhost:PORT
     I just add example page using static html. Remove this if you done with your update
@@ -117,7 +117,7 @@ Demo visit here [wa.ndalu.id](https://wa.ndalu.id)
     It cause auto start not emitting data to client. It's ok
 
 ## CONNECTION
-    
+
     curl --location --request POST 'localhost:3000/api/whatsapp/create-instance' \
     --header 'Content-Type: application/json' \
     --header 'Authorization: Basic TmRhbHUtc2VydmVyLXVVZGtmZ2xpNzgzcGtmbmxhc2tvZ29pZ2hyOg==' \
